@@ -1,52 +1,70 @@
-import { LovedOne } from '@/types/event';
+import { supabase } from '@/integrations/supabase/client';
+import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
-const STORAGE_KEY = 'loved-ones-events';
+export type Event = Tables<'events'>;
+export type EventInsert = TablesInsert<'events'>;
 
-export function getEvents(): LovedOne[] {
-  const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : [];
+export async function fetchEvents(userId: string): Promise<Event[]> {
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .eq('user_id', userId)
+    .order('date', { ascending: true });
+  
+  if (error) throw error;
+  return data ?? [];
 }
 
-export function saveEvents(events: LovedOne[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+export async function createEvent(event: EventInsert): Promise<Event> {
+  const { data, error } = await supabase
+    .from('events')
+    .insert(event)
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data;
 }
 
-export function addEvent(event: LovedOne) {
-  const events = getEvents();
-  events.push(event);
-  saveEvents(events);
+export async function updateEventById(id: string, updates: Partial<EventInsert>): Promise<Event> {
+  const { data, error } = await supabase
+    .from('events')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data;
 }
 
-export function deleteEvent(id: string) {
-  const events = getEvents().filter(e => e.id !== id);
-  saveEvents(events);
-}
-
-export function updateEvent(updated: LovedOne) {
-  const events = getEvents().map(e => e.id === updated.id ? updated : e);
-  saveEvents(events);
+export async function deleteEventById(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('events')
+    .delete()
+    .eq('id', id);
+  
+  if (error) throw error;
 }
 
 export function getDaysUntil(dateStr: string): number {
   const today = new Date();
-  const eventDate = new Date(dateStr);
+  today.setHours(0, 0, 0, 0);
+  const eventDate = new Date(dateStr + 'T00:00:00');
   const thisYear = today.getFullYear();
   
   let next = new Date(thisYear, eventDate.getMonth(), eventDate.getDate());
   if (next < today) {
-    next.setDate(next.getDate()); // check if it's today
-    if (next.toDateString() !== today.toDateString()) {
-      next = new Date(thisYear + 1, eventDate.getMonth(), eventDate.getDate());
-    }
+    next = new Date(thisYear + 1, eventDate.getMonth(), eventDate.getDate());
   }
   
   const diff = next.getTime() - today.getTime();
-  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  return Math.round(diff / (1000 * 60 * 60 * 24));
 }
 
 export function getAge(dateStr: string): number {
   const today = new Date();
-  const birth = new Date(dateStr);
+  const birth = new Date(dateStr + 'T00:00:00');
   let age = today.getFullYear() - birth.getFullYear();
   const m = today.getMonth() - birth.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {

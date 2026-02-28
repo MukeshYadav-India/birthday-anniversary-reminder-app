@@ -1,12 +1,11 @@
-import { LovedOne } from '@/types/event';
-import { getDaysUntil, getAge } from '@/lib/events';
+import { Event, getDaysUntil, getAge } from '@/lib/events';
 import { Cake, Heart, Trash2, Edit2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface EventCardProps {
-  event: LovedOne;
+  event: Event;
   onDelete: (id: string) => void;
-  onEdit: (event: LovedOne) => void;
+  onEdit: (event: Event) => void;
 }
 
 export function EventCard({ event, onDelete, onEdit }: EventCardProps) {
@@ -14,7 +13,7 @@ export function EventCard({ event, onDelete, onEdit }: EventCardProps) {
   const age = getAge(event.date);
   const isToday = daysUntil === 0;
   const isSoon = daysUntil <= 7 && daysUntil > 0;
-  const eventDate = new Date(event.date);
+  const eventDate = new Date(event.date + 'T00:00:00');
   const monthDay = eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   return (
@@ -58,7 +57,7 @@ export function EventCard({ event, onDelete, onEdit }: EventCardProps) {
             !isToday && !isSoon && "bg-secondary text-secondary-foreground"
           )}
         >
-          {isToday ? '🎉 Today!' : isSoon ? `${daysUntil}d` : `${daysUntil}d`}
+          {isToday ? '🎉 Today!' : `${daysUntil}d`}
         </span>
         <div className="flex gap-1">
           <button onClick={() => onEdit(event)} className="p-1 rounded-lg hover:bg-secondary/80 text-muted-foreground hover:text-foreground transition-colors">
