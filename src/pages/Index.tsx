@@ -25,7 +25,7 @@ const Index = () => {
   useEffect(() => {
     if (!user) return;
     setLoading(true);
-    fetchEvents(user.id).then(data => {
+    fetchEvents(user.id).then((data) => {
       setEvents(data);
       setLoading(false);
     }).catch(() => setLoading(false));
@@ -33,16 +33,16 @@ const Index = () => {
 
   const sortedEvents = [...events].sort((a, b) => getDaysUntil(a.date) - getDaysUntil(b.date));
 
-  const handleSave = useCallback(async (data: { name: string; date: string; type: string; notes?: string }) => {
+  const handleSave = useCallback(async (data: {name: string;date: string;type: string;notes?: string;}) => {
     if (!user) return;
     try {
       if (editingEvent) {
         const updated = await updateEventById(editingEvent.id, data);
-        setEvents(prev => prev.map(e => e.id === updated.id ? updated : e));
+        setEvents((prev) => prev.map((e) => e.id === updated.id ? updated : e));
         toast.success('Event updated! ✨');
       } else {
         const created = await createEvent({ ...data, user_id: user.id });
-        setEvents(prev => [...prev, created]);
+        setEvents((prev) => [...prev, created]);
         toast.success('Added to your people! 🎉');
       }
     } catch (err: any) {
@@ -54,7 +54,7 @@ const Index = () => {
   const handleDelete = useCallback(async (id: string) => {
     try {
       await deleteEventById(id);
-      setEvents(prev => prev.filter(e => e.id !== id));
+      setEvents((prev) => prev.filter((e) => e.id !== id));
       toast.success('Removed');
     } catch (err: any) {
       toast.error(err.message);
@@ -94,7 +94,7 @@ const Index = () => {
     setPushLoading(false);
   };
 
-  const upcomingCount = events.filter(e => getDaysUntil(e.date) <= 30).length;
+  const upcomingCount = events.filter((e) => getDaysUntil(e.date) <= 30).length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -104,22 +104,22 @@ const Index = () => {
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
               <CalendarHeart className="h-6 w-6 text-primary-foreground/90" />
-              <h1 className="text-2xl font-extrabold text-primary-foreground">Cherish</h1>
+              <h1 className="text-2xl font-extrabold text-primary-foreground">Wish Your Loved Ones</h1>
             </div>
             <div className="flex items-center gap-1">
               <button
                 onClick={handleTogglePush}
                 disabled={pushLoading}
                 className="p-2 rounded-xl text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
-                title={pushEnabled ? 'Disable notifications' : 'Enable notifications'}
-              >
+                title={pushEnabled ? 'Disable notifications' : 'Enable notifications'}>
+
                 {pushLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : pushEnabled ? <Bell className="h-5 w-5" /> : <BellOff className="h-5 w-5" />}
               </button>
               <button
                 onClick={signOut}
                 className="p-2 rounded-xl text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
-                title="Sign out"
-              >
+                title="Sign out">
+
                 <LogOut className="h-5 w-5" />
               </button>
             </div>
@@ -144,42 +144,42 @@ const Index = () => {
       {/* Content */}
       <div className="max-w-lg mx-auto px-5 -mt-4">
         <Button
-          onClick={() => { setEditingEvent(null); setDialogOpen(true); }}
+          onClick={() => {setEditingEvent(null);setDialogOpen(true);}}
           className="w-full rounded-2xl h-14 text-base font-bold shadow-warm bg-card text-foreground border border-border hover:shadow-lg hover:border-primary/30 transition-all mb-6"
-          variant="outline"
-        >
+          variant="outline">
+
           <Plus className="h-5 w-5 mr-2 text-primary" />
           Add Someone Special
         </Button>
 
-        {loading ? (
-          <div className="flex justify-center py-16">
+        {loading ?
+        <div className="flex justify-center py-16">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : sortedEvents.length === 0 ? (
-          <div className="text-center py-16">
+          </div> :
+        sortedEvents.length === 0 ?
+        <div className="text-center py-16">
             <Sparkles className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
             <h3 className="text-lg font-bold text-muted-foreground/60">No one added yet</h3>
             <p className="text-sm text-muted-foreground/40 mt-1">Start by adding your loved ones' special dates</p>
-          </div>
-        ) : (
-          <div className="space-y-3 pb-8">
+          </div> :
+
+        <div className="space-y-3 pb-8">
             <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider px-1">Upcoming Events</h2>
-            {sortedEvents.map(event => (
-              <EventCard key={event.id} event={event} onDelete={handleDelete} onEdit={handleEdit} />
-            ))}
+            {sortedEvents.map((event) =>
+          <EventCard key={event.id} event={event} onDelete={handleDelete} onEdit={handleEdit} />
+          )}
           </div>
-        )}
+        }
       </div>
 
       <AddEventDialog
         open={dialogOpen}
-        onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditingEvent(null); }}
+        onOpenChange={(open) => {setDialogOpen(open);if (!open) setEditingEvent(null);}}
         onSave={handleSave}
-        editEvent={editingEvent}
-      />
-    </div>
-  );
+        editEvent={editingEvent} />
+
+    </div>);
+
 };
 
 export default Index;
