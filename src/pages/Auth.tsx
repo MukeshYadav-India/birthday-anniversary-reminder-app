@@ -37,7 +37,7 @@ const Auth = () => {
       <div className="gradient-warm px-6 pt-16 pb-12 rounded-b-[2rem]">
         <div className="max-w-sm mx-auto text-center">
           <CalendarHeart className="h-12 w-12 text-primary-foreground mx-auto mb-3" />
-          <h1 className="text-3xl font-extrabold text-primary-foreground">Cherish</h1>
+          <h1 className="text-3xl font-extrabold text-primary-foreground">Wish Your Loved Ones</h1>
           <p className="text-primary-foreground/75 text-sm font-medium mt-1">
             Never forget the dates that matter most
           </p>
@@ -59,11 +59,11 @@ const Auth = () => {
                   id="email"
                   type="email"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   className="pl-10 rounded-xl"
-                  required
-                />
+                  required />
+
               </div>
             </div>
 
@@ -75,21 +75,21 @@ const Auth = () => {
                   id="password"
                   type="password"
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="pl-10 rounded-xl"
                   required
-                  minLength={6}
-                />
+                  minLength={6} />
+
               </div>
             </div>
 
             <Button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl h-12 text-base font-bold gradient-warm text-primary-foreground hover:opacity-90 transition-opacity"
-            >
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (isLogin ? 'Sign In' : 'Sign Up')}
+              className="w-full rounded-xl h-12 text-base font-bold gradient-warm text-primary-foreground hover:opacity-90 transition-opacity">
+
+              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : isLogin ? 'Sign In' : 'Sign Up'}
             </Button>
           </form>
 
@@ -97,15 +97,15 @@ const Auth = () => {
             {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
             <button
               onClick={() => setIsLogin(!isLogin)}
-              className="text-primary font-semibold hover:underline"
-            >
+              className="text-primary font-semibold hover:underline">
+
               {isLogin ? 'Sign Up' : 'Sign In'}
             </button>
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Auth;
