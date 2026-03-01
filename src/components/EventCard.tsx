@@ -43,6 +43,9 @@ export function EventCard({ event, onDelete, onEdit }: EventCardProps) {
         <h3 className={cn("font-bold text-base truncate", isToday && "text-celebration-foreground")}>
           {event.name}
         </h3>
+        {event.relation && (
+          <p className={cn("text-xs font-medium", isToday ? "text-celebration-foreground/70" : "text-muted-foreground/70")}>{event.relation}</p>
+        )}
         <p className={cn("text-sm", isToday ? "text-celebration-foreground/80" : "text-muted-foreground")}>
           {monthDay} · {event.type === 'birthday' ? `Turns ${age + 1}` : `Year ${age + 1}`}
         </p>

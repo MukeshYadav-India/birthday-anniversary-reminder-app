@@ -33,7 +33,7 @@ const Index = () => {
 
   const sortedEvents = [...events].sort((a, b) => getDaysUntil(a.date) - getDaysUntil(b.date));
 
-  const handleSave = useCallback(async (data: {name: string;date: string;type: string;notes?: string;}) => {
+  const handleSave = useCallback(async (data: {name: string;date: string;type: string;relation?: string;notes?: string;}) => {
     if (!user) return;
     try {
       if (editingEvent) {
