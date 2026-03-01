@@ -9,15 +9,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Cake, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+const RELATIONS = ['Family', 'Friend', 'Colleague', 'Brother', 'Sister', 'Wife', 'Husband', 'Parent', 'Other'] as const;
 
 type EventType = 'birthday' | 'anniversary';
 
 interface AddEventDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (data: { name: string; date: string; type: EventType; notes?: string }) => void;
+  onSave: (data: { name: string; date: string; type: EventType; relation?: string; notes?: string }) => void;
   editEvent?: Event | null;
 }
 
@@ -25,6 +28,7 @@ export function AddEventDialog({ open, onOpenChange, onSave, editEvent }: AddEve
   const [name, setName] = useState('');
   const [date, setDate] = useState('');
   const [type, setType] = useState<EventType>('birthday');
+  const [relation, setRelation] = useState('');
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
@@ -32,18 +36,20 @@ export function AddEventDialog({ open, onOpenChange, onSave, editEvent }: AddEve
       setName(editEvent.name);
       setDate(editEvent.date);
       setType(editEvent.type as EventType);
+      setRelation(editEvent.relation ?? '');
       setNotes(editEvent.notes ?? '');
     } else {
       setName('');
       setDate('');
       setType('birthday');
+      setRelation('');
       setNotes('');
     }
   }, [editEvent, open]);
 
   const handleSave = () => {
     if (!name || !date) return;
-    onSave({ name, date, type, notes: notes || undefined });
+    onSave({ name, date, type, relation: relation || undefined, notes: notes || undefined });
     onOpenChange(false);
   };
 
@@ -81,6 +87,19 @@ export function AddEventDialog({ open, onOpenChange, onSave, editEvent }: AddEve
                 <Heart className="h-4 w-4" /> Anniversary
               </button>
             </div>
+          </div>
+          <div>
+            <Label className="text-sm font-semibold">Relation</Label>
+            <Select value={relation} onValueChange={setRelation}>
+              <SelectTrigger className="mt-1.5 rounded-xl">
+                <SelectValue placeholder="Select relation" />
+              </SelectTrigger>
+              <SelectContent>
+                {RELATIONS.map((r) => (
+                  <SelectItem key={r} value={r}>{r}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label htmlFor="notes" className="text-sm font-semibold">Notes (optional)</Label>

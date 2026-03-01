@@ -5,5 +5,6 @@ export interface LovedOne {
   name: string;
   date: string; // ISO date string (month-day matters)
   type: EventType;
+  relation?: string;
   notes?: string;
 }
