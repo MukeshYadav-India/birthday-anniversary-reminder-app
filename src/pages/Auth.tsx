@@ -7,7 +7,7 @@ import { CalendarHeart, Mail, Lock, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,7 +16,14 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      if (isLogin) {
+      if (mode === 'forgot') {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast.success('Check your email for a password reset link! 📧');
+        setMode('login');
+      } else if (mode === 'login') {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success('Welcome back! 🎉');
@@ -32,6 +39,9 @@ const Auth = () => {
     }
   };
 
+  const title = mode === 'forgot' ? 'Reset Password' : mode === 'login' ? 'Welcome Back' : 'Create Account';
+  const buttonLabel = mode === 'forgot' ? 'Send Reset Link' : mode === 'login' ? 'Sign In' : 'Sign Up';
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="gradient-warm px-6 pt-16 pb-12 rounded-b-[2rem]">
@@ -46,9 +56,7 @@ const Auth = () => {
 
       <div className="flex-1 flex items-start justify-center px-6 -mt-6">
         <div className="w-full max-w-sm bg-card rounded-2xl shadow-card border border-border p-6">
-          <h2 className="text-xl font-bold mb-6">
-            {isLogin ? 'Welcome Back' : 'Create Account'}
-          </h2>
+          <h2 className="text-xl font-bold mb-6">{title}</h2>
 
           <form onSubmit={handleAuth} className="space-y-4">
             <div>
@@ -62,50 +70,67 @@ const Auth = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   className="pl-10 rounded-xl"
-                  required />
-
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="password" className="text-sm font-semibold">Password</Label>
-              <div className="relative mt-1.5">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="pl-10 rounded-xl"
                   required
-                  minLength={6} />
-
+                />
               </div>
             </div>
+
+            {mode !== 'forgot' && (
+              <div>
+                <Label htmlFor="password" className="text-sm font-semibold">Password</Label>
+                <div className="relative mt-1.5">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="pl-10 rounded-xl"
+                    required
+                    minLength={6}
+                  />
+                </div>
+              </div>
+            )}
 
             <Button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl h-12 text-base font-bold gradient-warm text-primary-foreground hover:opacity-90 transition-opacity">
-
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : isLogin ? 'Sign In' : 'Sign Up'}
+              className="w-full rounded-xl h-12 text-base font-bold gradient-warm text-primary-foreground hover:opacity-90 transition-opacity"
+            >
+              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : buttonLabel}
             </Button>
           </form>
 
-          <p className="text-center text-sm text-muted-foreground mt-4">
-            {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
+          {mode === 'login' && (
             <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-primary font-semibold hover:underline">
-
-              {isLogin ? 'Sign Up' : 'Sign In'}
+              onClick={() => setMode('forgot')}
+              className="block text-sm text-primary font-semibold hover:underline mx-auto mt-3"
+            >
+              Forgot Password?
             </button>
+          )}
+
+          <p className="text-center text-sm text-muted-foreground mt-4">
+            {mode === 'forgot' ? (
+              <button onClick={() => setMode('login')} className="text-primary font-semibold hover:underline">
+                Back to Sign In
+              </button>
+            ) : mode === 'login' ? (
+              <>Don't have an account?{' '}
+                <button onClick={() => setMode('signup')} className="text-primary font-semibold hover:underline">Sign Up</button>
+              </>
+            ) : (
+              <>Already have an account?{' '}
+                <button onClick={() => setMode('login')} className="text-primary font-semibold hover:underline">Sign In</button>
+              </>
+            )}
           </p>
         </div>
       </div>
-    </div>);
-
+    </div>
+  );
 };
 
 export default Auth;
