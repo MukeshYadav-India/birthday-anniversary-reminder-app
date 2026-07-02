@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Event, fetchEvents, createEvent, updateEventById, deleteEventById, getDaysUntil } from '@/lib/events';
-import { subscribeToPush, isPushSubscribed, registerServiceWorker } from '@/lib/push';
+import { subscribeToPush, unsubscribeFromPush, isPushSubscribed, registerServiceWorker, isNativePlatform } from '@/lib/push';
 import { EventCard } from '@/components/EventCard';
 import { AddEventDialog } from '@/components/AddEventDialog';
 import { Plus, CalendarHeart, Sparkles, Bell, BellOff, LogOut, Loader2 } from 'lucide-react';
@@ -71,11 +71,13 @@ const Index = () => {
     setPushLoading(true);
     try {
       if (!pushEnabled) {
-        const granted = await Notification.requestPermission();
-        if (granted !== 'granted') {
-          toast.error('Please allow notifications in your browser settings');
-          setPushLoading(false);
-          return;
+        if (!isNativePlatform()) {
+          const granted = await Notification.requestPermission();
+          if (granted !== 'granted') {
+            toast.error('Please allow notifications in your browser settings');
+            setPushLoading(false);
+            return;
+          }
         }
         const success = await subscribeToPush(user.id);
         if (success) {
@@ -85,6 +87,7 @@ const Index = () => {
           toast.error('Failed to enable push notifications');
         }
       } else {
+        await unsubscribeFromPush(user.id);
         setPushEnabled(false);
         toast.success('Push notifications disabled');
       }
